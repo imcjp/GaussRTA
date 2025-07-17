@@ -3,12 +3,13 @@ addpath('./core');
 f1 = @(x,y) hypergeom([1,x],1+x,-y);
 f2 = @(x,y) HybridWithRTA(x,y,1);
 f3 = @(x,y) HybridWithRTA(x,y,2);
+f4 = @(x,y) pyHyp2f1(x,y);
 
 %% 1. Parameter settings
 xVals = [0.1 1 10 100];          % 4 values of x
 yVals = 10.^(-3:0.05:3);         % 25 values of y
 yVals(65) = (1+sqrt(5))/2;
-Nrep = 1000;                     % Number of repetitions per point
+Nrep = 10;                     % Number of repetitions per point
 
 nx = numel(xVals);
 ny = numel(yVals);
@@ -16,6 +17,7 @@ ny = numel(yVals);
 T1 = zeros(nx, ny);              % Time matrix for f1
 T2 = zeros(nx, ny);              % Time matrix for f2
 T3 = NaN(nx, ny);                % Time matrix for f3 (default NaN)
+T4 = zeros(nx, ny);              % Time matrix for f4
 
 %% 2. Warm-up – Eliminate first call overhead
 fprintf('Warm-up phase...\n');
@@ -26,6 +28,8 @@ f2(warmX, warmY);                % Warm up f2
 if ~isempty(warmY)
     f3(warmX, warmY);            % Warm up f3
 end
+f4(warmX, warmY);                % Warm up f4
+
 
 %% 3. Timing
 fprintf('Start timing...\n');
@@ -67,6 +71,13 @@ for ix = 1:nx
             end
         end
 
+        %% Timing for f4
+        tStart = tic;
+        for k = 1:Nrep
+            r = f4(x, y);
+        end
+        T4(ix, iy) = toc(tStart) / Nrep;
+
         %% Progress feedback
         iterCount = iterCount + 1;
         waitbar(iterCount/totalIter, wb, ...
@@ -78,8 +89,8 @@ for ix = 1:nx
             t3str = 'NaN';
         end
         
-        fprintf('x=%6.3g, y=%8.5g  |  T1=%.4es  T2=%.4es  T3=%s\n', ...
-                x, y, T1(ix, iy), T2(ix, iy), t3str);
+        fprintf('x=%6.3g, y=%8.5g  |  T1=%.4es  T2=%.4es  T3=%s  T4=%.4es\n', ...
+                x, y, T1(ix, iy), T2(ix, iy), t3str, T4(ix, iy));
 
     end
 end

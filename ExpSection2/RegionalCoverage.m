@@ -34,14 +34,15 @@ classdef RegionalCoverage < handle
                         else
                             connPro=connProByFastAlg(P,r0,d1,eta,rm,q,N,p,lamda0,obj.expType4Fast);
                         end
-                        z(i+j-1)=proOfBaseStation(P,r0,d1,rm,lamda0)*connPro*pdfOf2D(r0,rm)*lamda0.*r0;
+                        proBase=proOfBaseStation(P,r0,d1,rm,lamda0);
+                        z(i+j-1)=proBase*connPro*pdfOf2D(r0,rm)*lamda0.*r0;
                     end
                 end
             end
         end
         
         function [ z ] = funcTemp2(obj, P,r0,rm,lamda0 )
-	        z=pdfOf2D(r0,rm)*lamda0.*r0;
+	        z=pdfOf2D(r0,rm)*lamda0.*r0/4;
         end
     end    
 end
